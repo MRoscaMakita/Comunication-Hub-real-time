@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36429.23 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Comunication Hub real time", "Comunication Hub real time\Comunication Hub real time.csproj", "{466579EA-533D-421D-BEDC-3CD370C1FE80}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{466579EA-533D-421D-BEDC-3CD370C1FE80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{466579EA-533D-421D-BEDC-3CD370C1FE80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{466579EA-533D-421D-BEDC-3CD370C1FE80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{466579EA-533D-421D-BEDC-3CD370C1FE80}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B5E1AA84-D6E5-4CDE-B4F2-56480E955C0A}
+	EndGlobalSection
+EndGlobal

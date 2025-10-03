@@ -1,0 +1,109 @@
+@page
+@model RenderChatModel
+@{
+    ViewData["Title"] = "Render Server Chat";
+}
+
+<h2>Render Server Chatroom</h2>
+
+<div id="connectionStatus" style="margin-bottom:10px; padding:10px; background-color:#e3f2fd; border-radius:4px;">
+    <strong>Status:</strong> <span id="status">Connecting...</span>
+</div>
+
+<div id="messages" style="border:1px solid #ccc;height:400px;overflow-y:scroll;padding:10px; background-color:#f9f9f9; border-radius:4px;"></div>
+
+<div style="margin-top:10px;">
+    <input type="text" id="message" placeholder="Type your message..." style="width:80%; padding:8px; border:1px solid #ccc; border-radius:4px;" />
+    <button id="sendBtn" style="padding:8px 20px; background-color:#007bff; color:white; border:none; border-radius:4px; cursor:pointer;">Send</button>
+</div>
+
+@section Scripts {
+    <script>
+        let ws;
+        const messagesDiv = document.getElementById("messages");
+        const statusSpan = document.getElementById("status");
+        const messageInput = document.getElementById("message");
+        const sendBtn = document.getElementById("sendBtn");
+
+        function connectWebSocket() {
+            // Connect to the remote Render server
+            ws = new WebSocket("wss://tiny-render-server.onrender.com");
+
+            ws.onopen = function() {
+                console.log("WebSocket Connected");
+                statusSpan.textContent = "Connected";
+                statusSpan.style.color = "green";
+                sendBtn.disabled = false;
+            };
+
+            ws.onmessage = function(event) {
+                try {
+                    const msgObj = JSON.parse(event.data);
+                    const msgElement = document.createElement("div");
+                    msgElement.style.marginBottom = "8px";
+                    msgElement.innerHTML = `<strong>${msgObj.type || 'Message'}:</strong> ${msgObj.message}`;
+                    messagesDiv.appendChild(msgElement);
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                } catch (e) {
+                    // If not JSON, display as plain text
+                    const msgElement = document.createElement("div");
+                    msgElement.style.marginBottom = "8px";
+                    msgElement.textContent = event.data;
+                    messagesDiv.appendChild(msgElement);
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                }
+            };
+
+            ws.onerror = function(error) {
+                console.error("WebSocket Error:", error);
+                statusSpan.textContent = "Error";
+                statusSpan.style.color = "red";
+            };
+
+            ws.onclose = function() {
+                console.log("WebSocket Disconnected");
+                statusSpan.textContent = "Disconnected";
+                statusSpan.style.color = "red";
+                sendBtn.disabled = true;
+                
+                // Attempt to reconnect after 3 seconds
+                setTimeout(() => {
+                    statusSpan.textContent = "Reconnecting...";
+                    statusSpan.style.color = "orange";
+                    connectWebSocket();
+                }, 3000);
+            };
+        }
+
+        // Initialize connection
+        connectWebSocket();
+
+        // Send message on button click
+        sendBtn.addEventListener("click", () => {
+            sendMessage();
+        });
+
+        // Send message on Enter key
+        messageInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                sendMessage();
+            }
+        });
+
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            
+            if (message === "") return;
+            
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(message);
+                messageInput.value = "";
+            } else {
+                alert("WebSocket is not connected. Please wait...");
+            }
+        }
+
+        // Disable send button initially
+        sendBtn.disabled = true;
+    </script>
+}

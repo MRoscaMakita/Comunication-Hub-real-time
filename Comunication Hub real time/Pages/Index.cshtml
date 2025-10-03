@@ -1,0 +1,26 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Communication Hub - Real Time</h1>
+    <p class="lead">Welcome to the real-time communication hub</p>
+    
+    <div style="margin-top: 40px;">
+        <a href="/RenderChat" class="btn btn-primary btn-lg">
+            Enter Chatroom
+        </a>
+    </div>
+    
+    <div style="margin-top: 30px;">
+        <h3>Features:</h3>
+        <ul class="list-unstyled">
+            <li>✓ Real-time WebSocket communication</li>
+            <li>✓ Connects to remote Render server</li>
+            <li>✓ Auto-reconnection on disconnect</li>
+            <li>✓ Live connection status</li>
+        </ul>
+    </div>
+</div>
