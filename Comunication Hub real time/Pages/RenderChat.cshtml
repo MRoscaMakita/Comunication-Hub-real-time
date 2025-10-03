@@ -30,7 +30,6 @@
         const sendBtn = document.getElementById("sendBtn");
 
         function connectWebSocket() {
-            // Connect to the remote Render server
             ws = new WebSocket("wss://tiny-render-server.onrender.com");
 
             ws.onopen = function() {
@@ -40,36 +39,26 @@
                 sendBtn.disabled = false;
             };
 
-                    ws.onmessage = function(event) {
-            try {
-                const msgObj = JSON.parse(event.data);
-                const msgElement = document.createElement("div");
-                msgElement.style.marginBottom = "8px";
-                msgElement.style.display = "flex";
-                msgElement.style.justifyContent = "space-between";
+            ws.onmessage = function(event) {
+                try {
+                    const msgObj = JSON.parse(event.data);
 
-                const leftPart = document.createElement("span");
-                leftPart.innerHTML = `<strong>${userName}:</strong> ${msgObj.message}`;
+                    const msgElement = document.createElement("div");
+                    msgElement.style.marginBottom = "8px";
 
-                const rightPart = document.createElement("span");
-                rightPart.style.color = "gray";
-                rightPart.style.fontSize = "0.85em";
-                rightPart.textContent = new Date().toLocaleString(); // data si ora locale
+                    // Show [user]: message
+                    msgElement.innerHTML = `<strong>${msgObj.user}</strong>: ${msgObj.message}
+                        <span style="color:gray;font-size:0.85em; float:right;">${new Date().toLocaleString()}</span>`;
 
-                msgElement.appendChild(leftPart);
-                msgElement.appendChild(rightPart);
-
-                messagesDiv.appendChild(msgElement);
-                messagesDiv.scrollTop = messagesDiv.scrollHeight;
-            } catch (e) {
-                // If not JSON, display as plain text
-                const msgElement = document.createElement("div");
-                msgElement.style.marginBottom = "8px";
-                msgElement.textContent = event.data;
-                messagesDiv.appendChild(msgElement);
-                messagesDiv.scrollTop = messagesDiv.scrollHeight;
-            }
-        };
+                    messagesDiv.appendChild(msgElement);
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                } catch (e) {
+                    const msgElement = document.createElement("div");
+                    msgElement.textContent = event.data;
+                    messagesDiv.appendChild(msgElement);
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                }
+            };
 
             ws.onerror = function(error) {
                 console.error("WebSocket Error:", error);
@@ -82,8 +71,7 @@
                 statusSpan.textContent = "Disconnected";
                 statusSpan.style.color = "red";
                 sendBtn.disabled = true;
-                
-                // Attempt to reconnect after 3 seconds
+
                 setTimeout(() => {
                     statusSpan.textContent = "Reconnecting...";
                     statusSpan.style.color = "orange";
@@ -92,35 +80,30 @@
             };
         }
 
-        // Initialize connection
         connectWebSocket();
 
-        // Send message on button click
-        sendBtn.addEventListener("click", () => {
-            sendMessage();
-        });
-
-        // Send message on Enter key
+        sendBtn.addEventListener("click", () => sendMessage());
         messageInput.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") {
-                sendMessage();
-            }
+            if (e.key === "Enter") sendMessage();
         });
 
         function sendMessage() {
             const message = messageInput.value.trim();
-            
             if (message === "") return;
-            
+
             if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(message);
+                const msgObj = {
+                    type: "chat",
+                    user: userName,
+                    message: message
+                };
+                ws.send(JSON.stringify(msgObj));
                 messageInput.value = "";
             } else {
                 alert("WebSocket is not connected. Please wait...");
             }
         }
 
-        // Disable send button initially
         sendBtn.disabled = true;
     </script>
 }
