@@ -1,4 +1,4 @@
-@page
+﻿@page
 @model RenderChatModel
 @{
     ViewData["Title"] = "Render Server Chat";
@@ -39,6 +39,14 @@
                 sendBtn.disabled = false;
             };
 
+
+            // Cere permisiunea la încărcare
+            if ("Notification" in window) {
+                Notification.requestPermission().then(permission => {
+                    console.log("Notification permission:", permission);
+                });
+            }
+
             ws.onmessage = function(event) {
                 try {
                     const msgObj = JSON.parse(event.data);
@@ -46,12 +54,19 @@
                     const msgElement = document.createElement("div");
                     msgElement.style.marginBottom = "8px";
 
-                    // Show [user]: message
                     msgElement.innerHTML = `<strong>${msgObj.user}</strong>: ${msgObj.message}
                         <span style="color:gray;font-size:0.85em; float:right;">${new Date().toLocaleString()}</span>`;
 
                     messagesDiv.appendChild(msgElement);
                     messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+                    // Notificare dacă tab-ul nu e activ
+                    if (Notification.permission === "granted" && document.hidden) {
+                        new Notification(msgObj.user, {
+                            body: msgObj.message,
+                            icon: "/chat-icon.png" // optional
+                        });
+                    }
                 } catch (e) {
                     const msgElement = document.createElement("div");
                     msgElement.textContent = event.data;
