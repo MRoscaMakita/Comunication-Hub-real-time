@@ -18,8 +18,12 @@
 </div>
 
 @section Scripts {
+    @{
+        var userName = Environment.UserName;
+    }
     <script>
         let ws;
+        const userName = "@userName";
         const messagesDiv = document.getElementById("messages");
         const statusSpan = document.getElementById("status");
         const messageInput = document.getElementById("message");
@@ -36,23 +40,36 @@
                 sendBtn.disabled = false;
             };
 
-            ws.onmessage = function(event) {
-                try {
-                    const msgObj = JSON.parse(event.data);
-                    const msgElement = document.createElement("div");
-                    msgElement.style.marginBottom = "8px";
-                    msgElement.innerHTML = `<strong>${msgObj.type || 'Message'}:</strong> ${msgObj.message}`;
-                    messagesDiv.appendChild(msgElement);
-                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-                } catch (e) {
-                    // If not JSON, display as plain text
-                    const msgElement = document.createElement("div");
-                    msgElement.style.marginBottom = "8px";
-                    msgElement.textContent = event.data;
-                    messagesDiv.appendChild(msgElement);
-                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-                }
-            };
+                    ws.onmessage = function(event) {
+            try {
+                const msgObj = JSON.parse(event.data);
+                const msgElement = document.createElement("div");
+                msgElement.style.marginBottom = "8px";
+                msgElement.style.display = "flex";
+                msgElement.style.justifyContent = "space-between";
+
+                const leftPart = document.createElement("span");
+                leftPart.innerHTML = `<strong>${userName}:</strong> ${msgObj.message}`;
+
+                const rightPart = document.createElement("span");
+                rightPart.style.color = "gray";
+                rightPart.style.fontSize = "0.85em";
+                rightPart.textContent = new Date().toLocaleString(); // data si ora locale
+
+                msgElement.appendChild(leftPart);
+                msgElement.appendChild(rightPart);
+
+                messagesDiv.appendChild(msgElement);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            } catch (e) {
+                // If not JSON, display as plain text
+                const msgElement = document.createElement("div");
+                msgElement.style.marginBottom = "8px";
+                msgElement.textContent = event.data;
+                messagesDiv.appendChild(msgElement);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }
+        };
 
             ws.onerror = function(error) {
                 console.error("WebSocket Error:", error);

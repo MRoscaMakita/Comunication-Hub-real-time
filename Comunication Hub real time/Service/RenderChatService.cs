@@ -83,13 +83,17 @@ namespace Comunication_Hub_real_time.Service
 
             try
             {
-                var bytes = Encoding.UTF8.GetBytes(message);
-                await _ws.SendAsync(
-                    new ArraySegment<byte>(bytes), 
-                    WebSocketMessageType.Text, 
-                    true, 
-                    CancellationToken.None
-                );
+                var userName = Environment.UserName;
+                var payload = new
+                {
+                    type = userName,   // aici punem numele de utilizator în loc de "update"
+                    message = message
+                };
+
+                var json = System.Text.Json.JsonSerializer.Serialize(payload);
+                var bytes = Encoding.UTF8.GetBytes(json);
+
+                await _ws.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, CancellationToken.None);
             }
             catch (Exception ex)
             {
